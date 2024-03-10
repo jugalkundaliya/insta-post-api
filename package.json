@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npx ts-node src/index.ts",
-    "build": "npx tsc"
+    "build": "npm install typescript --save-dev tsc"
   },
   "author": "",
   "license": "ISC",
