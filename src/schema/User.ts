@@ -1,8 +1,5 @@
 import mongoose, { InferSchemaType, Schema, Types } from "mongoose";
-
-interface ICommonObject {
-  _id: Types.ObjectId;
-}
+import { ICommonObject } from "../interfaces/ICommonData";
 
 const userSchema = new Schema({
   email: {

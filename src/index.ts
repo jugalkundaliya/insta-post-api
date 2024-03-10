@@ -5,13 +5,18 @@ import bcrypt from "bcryptjs";
 import User, { IUserData } from "./schema/User";
 dotenv.config();
 const cors = require("cors");
+const multer = require("multer");
 import "./server";
+import Post from "./schema/Post";
+import { authorize } from "./middleware/auth";
 
 const app: Express = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const port = process.env.PORT || 3000;
+
+const upload = multer({ dest: "uploads/" });
 
 app.get("/", async (req: Request, res: Response) => {
   res.send("Init request success");
@@ -48,6 +53,23 @@ app.post("/login", async (req: Request, res: Response) => {
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
+});
+
+app.post("/posts", upload.single("file"), async (req: any, res: Response) => {
+  var storage = multer.diskStorage({
+    destination: "./uploads",
+  });
+  var upload = multer({
+    storage: storage,
+  }).any();
+
+  upload(req, res, function (err: any) {
+    if (err) {
+      return res.end("Error");
+    } else {
+      req.send("uploaded");
+    }
+  });
 });
 
 function sendNewToken(
