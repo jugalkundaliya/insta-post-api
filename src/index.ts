@@ -24,7 +24,10 @@ app.post("/login", async (req: Request, res: Response) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      const userToAdd = new User({ email, password });
+      const userToAdd = new User({
+        email,
+        password: bcrypt.hashSync(password, 10),
+      });
       await userToAdd.save();
       sendNewToken(userToAdd, res);
       return;

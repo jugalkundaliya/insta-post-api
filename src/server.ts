@@ -3,9 +3,7 @@ const uri = `mongodb+srv://${process.env.MONGO_USER_NAME}:${process.env.MONGO_PA
 
 async function run() {
   mongoose
-    .connect(uri, {
-      bufferCommands: false, // Disable command buffering
-    })
+    .connect(uri)
     .then(() => console.log("MongoDB connected successfully"));
 }
 
