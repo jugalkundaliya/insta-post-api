@@ -6,9 +6,12 @@ import User, { IUserData } from "./schema/User";
 dotenv.config();
 const cors = require("cors");
 const multer = require("multer");
+
 import "./server";
 import Post from "./schema/Post";
 import { authorize } from "./middleware/auth";
+import mongoose from "mongoose";
+const ObjectId = mongoose.Types.ObjectId;
 
 const app: Express = express();
 app.use(cors());
@@ -84,6 +87,53 @@ app.get("/posts", authorize, async (req: Request, res: Response) => {
   const posts = await Post.find();
   try {
     res.send(posts);
+  } catch (error) {
+    res.status(500).json("Something unexpected happened");
+  }
+});
+
+app.put("/like", authorize, async (req: Request, res: Response) => {
+  try {
+    const { postId: _id, userId } = req.body;
+    const post = await Post.findOne({ _id });
+    if (!post) {
+      res.status(404).json("Post not found");
+    }
+    const likesArray: any[] = post?.likes || [];
+    const userIdIndex = likesArray?.findIndex((aa) => {
+      return new ObjectId(aa.likedById).equals(new ObjectId(userId));
+    });
+    if (userIdIndex !== -1) {
+      likesArray.splice(userIdIndex, 1);
+    } else {
+      likesArray.push({ likedById: new ObjectId(userId) });
+    }
+    await post?.updateOne({ likes: likesArray });
+
+    res.send("toggled like successfully");
+  } catch (error) {
+    res.status(500).json("Something unexpected happened");
+  }
+});
+
+app.post("/comment", authorize, async (req: Request, res: Response) => {
+  try {
+    const { postId: _id, userId, comment } = req.body;
+    const updatedPost = await Post.findByIdAndUpdate(
+      _id,
+      {
+        $push: {
+          comments: { comment, author: userId },
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedPost) {
+      return res.status(404).json("Post not found");
+    }
+
+    res.send("comment added successfully");
   } catch (error) {
     res.status(500).json("Something unexpected happened");
   }

@@ -8,6 +8,13 @@ const commentSchema = new mongoose.Schema({
   },
 });
 
+const likeSchema = new mongoose.Schema({
+  likedById: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Instagram_User",
+  },
+});
+
 const postSchema = new Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -21,8 +28,8 @@ const postSchema = new Schema({
     type: String,
   },
   likes: {
-    type: Number,
-    default: 0,
+    type: [likeSchema],
+    default: [],
   },
   comments: {
     type: [commentSchema],
