@@ -16,7 +16,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const port = process.env.PORT || 3000;
 
-const upload = multer({ dest: "uploads/" });
+const storage = multer.memoryStorage();
+
+const upload = multer({ storage: storage });
 
 app.get("/", async (req: Request, res: Response) => {
   res.send("Init request success");
@@ -55,21 +57,36 @@ app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
 });
 
-app.post("/posts", upload.single("file"), async (req: any, res: Response) => {
-  var storage = multer.diskStorage({
-    destination: "./uploads",
-  });
-  var upload = multer({
-    storage: storage,
-  }).any();
-
-  upload(req, res, function (err: any) {
-    if (err) {
-      return res.end("Error");
-    } else {
-      req.send("uploaded");
+app.post(
+  "/posts",
+  authorize,
+  upload.single("file"),
+  async (req: any, res: Response) => {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
     }
-  });
+    try {
+      const { description, userId } = req.body;
+      const newPost = new Post({
+        description,
+        userId,
+        image: req.file.buffer,
+      });
+      await newPost.save();
+      res.send(newPost);
+    } catch (error) {
+      res.status(500).json("Something unexpected happened");
+    }
+  }
+);
+
+app.get("/posts", authorize, async (req: Request, res: Response) => {
+  const posts = await Post.find();
+  try {
+    res.send(posts);
+  } catch (error) {
+    res.status(500).json("Something unexpected happened");
+  }
 });
 
 function sendNewToken(
