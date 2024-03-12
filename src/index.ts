@@ -69,10 +69,12 @@ app.post(
       return res.status(400).json({ error: "No file uploaded" });
     }
     try {
-      const { description, userId } = req.body;
+      const { description } = req.body;
+      const userId = (req as any).userId;
+      const name = (await User.findById(userId))?.email;
       const newPost = new Post({
         description,
-        userId,
+        user: { id: userId, name },
         image: req.file.buffer,
       });
       await newPost.save();
@@ -94,7 +96,9 @@ app.get("/posts", authorize, async (req: Request, res: Response) => {
 
 app.put("/like", authorize, async (req: Request, res: Response) => {
   try {
-    const { postId: _id, userId } = req.body;
+    const { postId: _id } = req.body;
+    const userId = (req as any).userId;
+
     const post = await Post.findOne({ _id });
     if (!post) {
       res.status(404).json("Post not found");
@@ -118,7 +122,9 @@ app.put("/like", authorize, async (req: Request, res: Response) => {
 
 app.post("/comment", authorize, async (req: Request, res: Response) => {
   try {
-    const { postId: _id, userId, comment } = req.body;
+    const { postId: _id, comment } = req.body;
+    const userId = (req as any).userId;
+
     const updatedPost = await Post.findByIdAndUpdate(
       _id,
       {

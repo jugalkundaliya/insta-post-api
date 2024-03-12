@@ -34,7 +34,7 @@ export function authorize(req: Request, res: Response, next: NextFunction) {
       if (decoded) {
         const userId = (await User.findById(decoded?.userId))?._id;
         if (userId) {
-          req.body.userId = userId;
+          (req as any).userId = userId.toString();
         } else {
           return res.status(403).json({ message: "Invalid user" });
         }

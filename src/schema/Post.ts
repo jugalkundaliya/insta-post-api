@@ -15,10 +15,20 @@ const likeSchema = new mongoose.Schema({
   },
 });
 
-const postSchema = new Schema({
-  userId: {
+const userSchema = new mongoose.Schema({
+  id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Instagram_User",
+  },
+  name: {
+    type: String,
+  },
+});
+
+const postSchema = new Schema({
+  user: {
+    type: userSchema,
+    required: true,
   },
   image: {
     type: Buffer,
