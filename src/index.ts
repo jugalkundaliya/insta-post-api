@@ -128,11 +128,13 @@ app.post("/comment", authorize, async (req: Request, res: Response) => {
     const { postId: _id, comment } = req.body;
     const userId = (req as any).userId;
 
+    const name = (await User.findById(userId))?.email;
+
     const updatedPost = await Post.findByIdAndUpdate(
       _id,
       {
         $push: {
-          comments: { comment, author: userId },
+          comments: { comment, author: { id: userId, name } },
         },
       },
       { new: true }

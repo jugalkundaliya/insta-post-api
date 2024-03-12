@@ -1,20 +1,4 @@
 import mongoose, { Schema } from "mongoose";
-
-const commentSchema = new mongoose.Schema({
-  comment: String,
-  author: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Instagram_User",
-  },
-});
-
-const likeSchema = new mongoose.Schema({
-  likedById: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Instagram_User",
-  },
-});
-
 const userSchema = new mongoose.Schema({
   id: {
     type: mongoose.Schema.Types.ObjectId,
@@ -22,6 +6,18 @@ const userSchema = new mongoose.Schema({
   },
   name: {
     type: String,
+  },
+});
+
+const commentSchema = new mongoose.Schema({
+  comment: String,
+  author: userSchema,
+});
+
+const likeSchema = new mongoose.Schema({
+  likedById: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Instagram_User",
   },
 });
 
