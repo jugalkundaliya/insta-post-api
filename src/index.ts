@@ -78,7 +78,10 @@ app.post(
         image: req.file.buffer,
       });
       await newPost.save();
-      res.send(newPost);
+      res.send({
+        ...newPost,
+        likedByUser: newPost.likes.some((like) => like.likedById === userId),
+      });
     } catch (error) {
       res.status(500).json("Something unexpected happened");
     }
@@ -114,7 +117,7 @@ app.put("/like", authorize, async (req: Request, res: Response) => {
     }
     await post?.updateOne({ likes: likesArray });
 
-    res.send("toggled like successfully");
+    res.send(likesArray);
   } catch (error) {
     res.status(500).json("Something unexpected happened");
   }
@@ -139,7 +142,7 @@ app.post("/comment", authorize, async (req: Request, res: Response) => {
       return res.status(404).json("Post not found");
     }
 
-    res.send("comment added successfully");
+    res.send(updatedPost.comments);
   } catch (error) {
     res.status(500).json("Something unexpected happened");
   }
