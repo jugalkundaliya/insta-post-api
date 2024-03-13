@@ -89,9 +89,22 @@ app.post(
 );
 
 app.get("/posts", authorize, async (req: Request, res: Response) => {
-  const posts = await Post.find();
   try {
-    res.send(posts);
+    const posts = await Post.find();
+    const userId = (req as any).userId;
+    res.send(
+      posts.map((post) => ({
+        likedByUser: post.likes.some(
+          (like) => like.likedById?.toString() === userId
+        ),
+        _id: post._id,
+        image: post.image,
+        comments: post.comments,
+        likes: post.likes,
+        user: post.user,
+        description: post.description,
+      }))
+    );
   } catch (error) {
     res.status(500).json("Something unexpected happened");
   }
